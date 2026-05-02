@@ -15,7 +15,7 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,4 +35,81 @@
   to {
     transform: rotate(360deg);
   }
+}
+.para1{
+  height: 500px;
+  width: 100%;
+  object-fit: cover;
+}
+.room_img{
+  height: 250px;
+  width: 100%;
+  object-fit: cover;
+}
+.dining-img{
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+}
+/* The Ole Sereni Style - Left to Right Slide */
+.sliding-btn {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  border: none;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  background-color: #198754; /* Bootstrap Success Green */
+  color: white;
+}
+
+/* Text layers */
+.btn-text, .btn-slide {
+  position: absolute;
+  width: 100%;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 3;
+}
+
+/* Hidden text starts shifted to the left */
+.btn-slide {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* The Background "Slide" Overlay */
+.sliding-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #111; /* Dark overlay color */
+  transform: scaleX(0); /* Start with zero width */
+  transform-origin: left; /* Slide starts from the left */
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+
+/* Hover Animations */
+.sliding-btn:hover::after {
+  transform: scaleX(1); /* Fill to the right */
+}
+
+.sliding-btn:hover .btn-text {
+  transform: translateX(100%); /* Push original text out to the right */
+  opacity: 0;
+}
+
+.sliding-btn:hover .btn-slide {
+  transform: translateX(0); /* Bring new text into center */
+  opacity: 1;
 }
