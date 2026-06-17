@@ -1,13 +1,17 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Pagination from './Pagination'
 
 function Rooms() {
   const [rooms, setRooms] = useState([])
-  const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   
+  // PAGINATION STATE
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 8 
+
   const img_url = "https://victordesigner.alwaysdata.net/static/rooms/"
   const navigate = useNavigate()
 
@@ -24,35 +28,14 @@ function Rooms() {
     }
   }
 
-  const getBookings = async () => {
-    try {
-      const response = await axios.post("https://victordesigner.alwaysdata.net/api/bookings")
-      if (Array.isArray(response.data)) {
-        setBookings(response.data)
-      }
-    } catch (err) {
-      console.error("Bookings fetch failed", err.message)
-    }
-  }
-
   useEffect(() => {
     getRooms()
-    getBookings()
   }, [])
 
-  const isBooked = (roomId) => {
-    if (bookings.length === 0) return false;
-    const now = new Date()
-    return bookings.some(b => {
-      const checkIn = new Date(b.check_in)
-      const checkOut = new Date(b.check_out)
-      return (
-        b.room_number === roomId &&
-        now >= checkIn && 
-        now < checkOut
-      )
-    })
-  }
+  // PAGINATION MATH
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentRooms = rooms.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <div className='row container-fluid p-4'>
@@ -70,10 +53,9 @@ function Rooms() {
       {!loading && (
         <>
           {error && <div className="col-12 alert alert-danger">{error}</div>}
-          {rooms.map((room) => {
-            const booked = isBooked(room.room_id)
-            const disabledIds = [10,2,14,18,7]; 
-            const isManuallyDisabled = disabledIds.includes(room.room_id);
+          {currentRooms.map((room) => {
+            // Using the status directly from the API (returns 'booked' or 'available')
+            const isOccupied = room.status === 'booked';
             
             return (
               <div key={room.room_id} className='col-md-3 mb-4'>
@@ -87,13 +69,14 @@ function Rooms() {
                   <div className='card-body d-flex flex-column'>
                     <h6 className="fw-bold mb-2">{room.description}</h6>
                     <span className="badge bg-primary rounded-pill mb-3 w-50">Ksh {room.price}</span>
+                    
                     <div className="mt-auto">
                       <button
-                        className={`btn w-100 fw-bold ${booked || isManuallyDisabled ? 'btn-secondary' : 'btn-success'}`}
-                        disabled={booked || isManuallyDisabled}
+                        className={`btn w-100 fw-bold ${isOccupied ? 'btn-secondary' : 'btn-success'}`}
+                        disabled={isOccupied}
                         onClick={() => navigate("/book", { state: { room } })}
                       >
-                        {isManuallyDisabled ? "Booked" : booked ? "Occupied" : "Book Now"}
+                        {isOccupied ? "Occupied" : "Book Now"}
                       </button>
                     </div>
                   </div>
@@ -101,6 +84,16 @@ function Rooms() {
               </div>
             )
           })}
+          
+          {/* PAGINATION CONTROLS */}
+          <div className="col-12">
+            <Pagination 
+              totalItems={rooms.length} 
+              itemsPerPage={itemsPerPage} 
+              currentPage={currentPage} 
+              onPageChange={setCurrentPage} 
+            />
+          </div>
         </>
       )}
     </div>

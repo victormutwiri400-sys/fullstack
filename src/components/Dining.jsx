@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Pagination from "./Pagination";
 
 function GetDining() {
   const [products, setProducts] = useState([]);
@@ -10,7 +11,15 @@ function GetDining() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if user is already booked in a room
+  // PAGINATION, CATEGORY & SEARCH STATES
+  const [currentPage, setCurrentPage] = useState(1);
+  const [category, setCategory] = useState("all");
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const itemsPerPage = 8;
+
+  // STABLE CACHE BUSTER TIMESTAMP
+  const [cacheVersion, setCacheVersion] = useState(Date.now());
+
   const bookedRoom = location.state?.room || location.state?.product || null;
   const img_url = "https://victordesigner.alwaysdata.net/static/images/";
 
@@ -20,6 +29,7 @@ function GetDining() {
     try {
       const res = await axios.get("https://victordesigner.alwaysdata.net/api/dining");
       setProducts(res.data);
+      setCacheVersion(Date.now());
       setLoading(false);
     } catch (err) {
       setError("Dining Error: " + err.message);
@@ -32,7 +42,6 @@ function GetDining() {
   }, []);
 
   const handleOrder = (e, product) => {
-    // PREVENT PAGE RELOAD
     if (e) e.preventDefault();
 
     const auth = JSON.parse(localStorage.getItem("user") || "null");
@@ -44,7 +53,6 @@ function GetDining() {
 
     const currentUser = auth.role === 'admin' ? auth.admin : auth.user;
     
-    // Address Check
     if (!currentUser?.county || !currentUser?.sub_county) {
       alert("Please set your delivery address on your profile before ordering.");
       navigate("/?action=add_address"); 
@@ -61,7 +69,6 @@ function GetDining() {
       quantity: qty
     };
 
-    // LOGIC: Room guests go to payment, others go to confirm order
     if (bookedRoom) {
       navigate("/payment", { 
         state: { 
@@ -70,17 +77,59 @@ function GetDining() {
         } 
       });
     } else {
-      navigate("/orders", { 
+      navigate("/payment", { 
         state: { meal: mealData } 
       });
     }
   };
 
+  // 1. FILTER BY CATEGORY (Using database column)
+  const filteredProducts = products.filter((p) => {
+    if (category === "all") return true;
+    return p.category && p.category.toLowerCase() === category.toLowerCase();
+  });
+
+  // 2. PAGINATION (Get page items)
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const pagedItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+
+  // 3. SEARCH (Within current page items only)
+  const displayedProducts = pagedItems.filter((p) => {
+    return p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+           p.description.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div className="container-fluid p-4">
       <h2 className="fw-bold mb-4">Dining Menu</h2>
+
+      <div className="row mb-4 align-items-center">
+        {/* CATEGORY SELECTION */}
+        <div className="col-md-6 d-flex gap-2 mb-3 mb-md-0">
+          {["all", "breakfast", "lunch", "dinner"].map((cat) => (
+            <button
+              key={cat}
+              className={`btn btn-sm ${category === cat ? "btn-dark" : "btn-outline-dark"} text-uppercase fw-bold`}
+              onClick={() => { setCategory(cat); setCurrentPage(1); setSearchTerm(""); }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* SEARCH BAR */}
+        <div className="col-md-6">
+          <input 
+            type="text" 
+            value={searchTerm}
+            className="form-control shadow-sm" 
+            placeholder="Search items on this page..." 
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
       
-      {/* Top Left Spinner */}
       {loading && (
         <div className="d-flex align-items-center mb-4">
           <div className="spinner-border spinner-border-sm text-primary me-2" role="status">
@@ -100,28 +149,29 @@ function GetDining() {
 
       {!loading && (
         <div className="row">
-          {products.map((p) => (
+          {displayedProducts.map((p) => (
             <div key={p.dining_id} className="col-md-3 mb-4">
               <div className="card h-100 shadow-sm border-0">
                 <img 
-                  src={img_url + p.photo} 
+                  src={p.photo ? `${img_url}${p.photo.toLowerCase()}?v=${cacheVersion}` : "https://placehold.co/600x400?text=No+Image"} 
                   className="card-img-top" 
                   style={{height:"150px", objectFit:"cover"}} 
                   alt={p.name}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://placehold.co/600x400?text=Image+Not+Found";
+                  }}
                 />
                 <div className="card-body d-flex flex-column">
-                  
                   <div className="d-flex justify-content-between align-items-start mb-2">
                     <h6 className="fw-bold mb-0">{p.name}</h6>
                     <span className="badge bg-primary rounded-pill">
                       Ksh {p.price}
                     </span>
                   </div>
-                  
                   <p className="small text-secondary flex-grow-1">
                     {p.description}
                   </p>
-
                   <div className="mt-auto">
                     <label className="small text-muted mb-1">Quantity</label>
                     <input 
@@ -131,7 +181,6 @@ function GetDining() {
                       className="form-control mb-2" 
                       onChange={(e) => setQuantities({...quantities, [p.dining_id]: e.target.value})} 
                     />
-                    
                     <button 
                       type="button" 
                       className="btn btn-success w-100 fw-bold" 
@@ -144,6 +193,15 @@ function GetDining() {
               </div>
             </div>
           ))}
+
+          <div className="col-12 mt-4">
+            <Pagination 
+              totalItems={filteredProducts.length} 
+              itemsPerPage={itemsPerPage} 
+              currentPage={currentPage} 
+              onPageChange={setCurrentPage} 
+            />
+          </div>
         </div>
       )}
     </div>

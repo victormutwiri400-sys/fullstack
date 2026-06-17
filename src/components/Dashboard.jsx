@@ -19,6 +19,7 @@ function AdminDashboard() {
   const [diningPrice, setDiningPrice] = useState("")
   const [diningPhoto, setDiningPhoto] = useState("")
   const [diningMsg, setDiningMsg] = useState("")
+  const [diningCategory, setDiningCategory] = useState("Breakfast");
 
   const [galleryName, setGalleryName] = useState("")
   const [galleryDescription, setGalleryDescription] = useState("")
@@ -32,6 +33,22 @@ function AdminDashboard() {
   const [newPassword, setNewPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+
+  // UPDATE ROOM
+const [updateRoomId, setUpdateRoomId] = useState("")
+const [updateRoomDescription, setUpdateRoomDescription] = useState("")
+const [updateRoomPrice, setUpdateRoomPrice] = useState("")
+const [updateRoomPhoto, setUpdateRoomPhoto] = useState("")
+const [updateRoomMsg, setUpdateRoomMsg] = useState("")
+
+// UPDATE DINING
+const [updateDiningId, setUpdateDiningId] = useState("")
+const [updateDiningName, setUpdateDiningName] = useState("")
+const [updateDiningDescription, setUpdateDiningDescription] = useState("")
+const [updateDiningPrice, setUpdateDiningPrice] = useState("")
+const [updateDiningPhoto, setUpdateDiningPhoto] = useState("")
+const [updateDiningMsg, setUpdateDiningMsg] = useState("")
+
 
   // --- INITIAL LOAD ---
   useEffect(() => {
@@ -105,6 +122,7 @@ function AdminDashboard() {
     data.append("description", diningDescription);
     data.append("price", diningPrice);
     data.append("photo", diningPhoto);
+    data.append("category", diningCategory);
     try {
       const res = await axios.post("https://victordesigner.alwaysdata.net/api/addDining", data);
       setDiningMsg(res.data.Message);
@@ -143,6 +161,93 @@ function AdminDashboard() {
 
   if (!authorized) return null;
 
+  // update room
+  const submitUpdateRoom = async (e) => {
+  e.preventDefault();
+  setUpdateRoomMsg("Please wait...");
+
+  const data = new FormData();
+
+  data.append("room_id", updateRoomId);
+
+  if (updateRoomDescription)
+    data.append("description", updateRoomDescription);
+
+  if (updateRoomPrice)
+    data.append("price", updateRoomPrice);
+
+  if (updateRoomPhoto)
+    data.append("photo", updateRoomPhoto);
+
+  try {
+    const res = await axios.post(
+      "https://victordesigner.alwaysdata.net/api/updateRoom",
+      data
+    );
+
+    setUpdateRoomMsg(
+      res.data.Success || res.data.Message
+    );
+
+    setUpdateRoomId("");
+    setUpdateRoomDescription("");
+    setUpdateRoomPrice("");
+    setUpdateRoomPhoto("");
+
+  } catch (err) {
+    setUpdateRoomMsg("Error: " + err.message);
+  }
+}
+
+// update dining
+const submitUpdateDining = async (e) => {
+  e.preventDefault();
+
+  setUpdateDiningMsg("Please wait...");
+
+  const data = new FormData();
+
+  data.append("dining_id", updateDiningId);
+
+  if (updateDiningName)
+    data.append("name", updateDiningName);
+
+  if (updateDiningDescription)
+    data.append("description", updateDiningDescription);
+
+  if (updateDiningPrice)
+    data.append("price", updateDiningPrice);
+
+  if (updateDiningPhoto)
+    data.append("photo", updateDiningPhoto);
+
+  try {
+
+    const res = await axios.post(
+      "https://victordesigner.alwaysdata.net/api/updateDining",
+      data
+    );
+
+    setUpdateDiningMsg(
+      res.data.Success || res.data.Message
+    );
+
+    setUpdateDiningId("");
+    setUpdateDiningName("");
+    setUpdateDiningDescription("");
+    setUpdateDiningPrice("");
+    setUpdateDiningPhoto("");
+
+  } catch (err) {
+  console.log(err.response?.data);
+  setUpdateDiningMsg(
+    err.response?.data?.Message ||
+    err.response?.data?.Error ||
+    err.message
+  );
+}
+}
+
   return (
     <div className="container-fluid mt-4 px-4 pb-5">
       <h2 className="mb-4 fw-bold text-dark">Hotel Admin Dashboard</h2>
@@ -168,6 +273,14 @@ function AdminDashboard() {
             <form onSubmit={submitDining}>
               {diningMsg && <p className="text-info small">{diningMsg}</p>}
               <input type="text" className="form-control mb-3" placeholder='Meal name' value={diningName} onChange={(e) => setDiningName(e.target.value)} required />
+              <select
+                className="form-select mb-3"
+                value={diningCategory}
+                onChange={(e) => setDiningCategory(e.target.value)} required>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+              </select>
               <textarea className="form-control mb-3" placeholder='Description' value={diningDescription} onChange={(e) => setDiningDescription(e.target.value)} required />
               <input type="number" className="form-control mb-3" placeholder='Price' value={diningPrice} onChange={(e) => setDiningPrice(e.target.value)} required />
               <input type="file" className="form-control mb-3" onChange={(e) => setDiningPhoto(e.target.files[0])} required />
@@ -310,6 +423,151 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      <div className="row g-4 mb-4">
+
+      {/* UPDATE ROOM */}
+
+      <div className="col-md-4">
+        <div className="card shadow-sm border-0 p-4 h-100">
+          <h5 className="fw-bold text-warning border-bottom pb-2 mb-3">
+         Update Room
+        </h5>
+                
+        ```
+      <form onSubmit={submitUpdateRoom}>
+
+      {updateRoomMsg && (
+      <p className="text-info small">{updateRoomMsg}</p>
+      )}
+
+      <input
+      type="number"
+      className="form-control mb-3"
+      placeholder="Room ID"
+      value={updateRoomId}
+      onChange={(e) => setUpdateRoomId(e.target.value)}
+      required
+      />
+
+      <textarea
+      className="form-control mb-3"
+      placeholder="New Description"
+      value={updateRoomDescription}
+      onChange={(e) =>
+        setUpdateRoomDescription(e.target.value)
+      }
+      />
+
+      <input
+      type="number"
+      className="form-control mb-3"
+      placeholder="New Price"
+      value={updateRoomPrice}
+      onChange={(e) =>
+        setUpdateRoomPrice(e.target.value)
+      }
+      />
+
+      <input
+      type="file"
+      className="form-control mb-3"
+      onChange={(e) =>
+        setUpdateRoomPhoto(e.target.files[0])
+      }
+      />
+
+      <button
+      type="submit"
+      className="btn btn-warning w-100"
+      >
+      Update Room
+      </button>
+
+      </form>
+      </div>
+      ```
+
+      </div>
+
+      {/* UPDATE DINING */}
+
+      <div className="col-md-4">
+        <div className="card shadow-sm border-0 p-4 h-100">
+          <h5 className="fw-bold text-info border-bottom pb-2 mb-3">
+          Update Dining
+          </h5>
+
+      ```
+      <form onSubmit={submitUpdateDining}>
+
+      {updateDiningMsg && (
+      <p className="text-info small">{updateDiningMsg}</p>
+      )}
+
+      <input
+        type="number"
+        className="form-control mb-3"
+        placeholder="Dining ID"
+        value={updateDiningId}
+        onChange={(e) =>
+        setUpdateDiningId(e.target.value)
+        }
+        required
+      />
+
+      <input
+        type="text"
+        className="form-control mb-3"
+        placeholder="New Meal Name"
+        value={updateDiningName}
+        onChange={(e) =>
+        setUpdateDiningName(e.target.value)
+      }
+      />
+
+      <textarea
+        className="form-control mb-3"
+        placeholder="New Description"
+        value={updateDiningDescription}
+        onChange={(e) =>
+        setUpdateDiningDescription(e.target.value)
+      }
+      />
+
+      <input
+        type="number"
+        className="form-control mb-3"
+        placeholder="New Price"
+        value={updateDiningPrice}
+        onChange={(e) =>
+        setUpdateDiningPrice(e.target.value)
+      }
+      />
+
+      <input
+        type="file"
+        className="form-control mb-3"
+        onChange={(e) =>
+        setUpdateDiningPhoto(e.target.files[0])
+      }
+      />
+
+      <button
+      type="submit"
+      className="btn btn-info w-100"
+      >
+      Update Dining
+      </button>
+
+      </form>
+      </div>
+      ```
+
+      </div>
+
+      </div>
+
 
     </div>
   )
