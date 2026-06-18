@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Carousel, Dropdown, Offcanvas, Nav, Modal, Button } from 'react-bootstrap'; 
+import {Dropdown, Offcanvas, Nav, Modal, Button } from 'react-bootstrap'; 
 import { 
   FaUserCircle, FaSignOutAlt, FaUser, FaCamera, FaHotel, FaHistory, 
-  FaFacebook, FaInstagram, FaTwitter, FaBars, FaMapMarkerAlt, FaShieldAlt, FaPhone 
+  FaFacebook, FaInstagram, FaTwitter, FaBars, FaMapMarkerAlt, FaShieldAlt, 
 } from "react-icons/fa"; 
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -50,7 +50,7 @@ const Layout = ({ children }) => {
         phone_number: currentUser.phone_number || ""
       });
     }
-  }, [auth]);
+  }, [currentUser]);
 
   const handleLogout = () => {
     localStorage.removeItem("user"); 
@@ -222,10 +222,11 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </nav>
-      
-      <marquee behavior="alternate" direction="" scrollamount="5" className="bg-info text-dark py-2 fs-10 mt-3 rounded shadow-sm">
-        Manage your bookings and explore our premium services.
-      </marquee>
+      <div className="marquee-container bg-info text-dark py-2 fs-10 mt-3 rounded shadow-sm">
+        <div className="marquee-text">
+            Manage your bookings and explore our premium services.
+        </div>
+      </div>
 
       {/* Sidebar Pane */}
       <Offcanvas show={showPane} onHide={() => setShowPane(false)} placement="start">

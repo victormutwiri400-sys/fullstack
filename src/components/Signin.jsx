@@ -65,6 +65,7 @@ const Signin = () => {
         <form onSubmit={submit}>
           {error && <div className="alert alert-danger">{error}</div>}
           {loading && <div className="alert alert-info">{loading}</div>}
+          {success && <div className="alert alert-info">{success}</div>}
 
           <div className="mb-3">
             <label className="form-label">Email Address</label>

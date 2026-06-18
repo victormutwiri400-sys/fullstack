@@ -113,3 +113,24 @@
   transform: translateX(0); /* Bring new text into center */
   opacity: 1;
 }
+.marquee-container {
+  overflow: hidden;
+  position: relative;
+  white-space: nowrap;
+}
+
+.marquee-text {
+  position: relative;
+  display: inline-block;
+  animation: bounceText 15s linear infinite alternate;
+}
+
+@keyframes bounceText {
+  from {
+    left: 0;
+  }
+
+  to {
+    left: calc(100% - 350px);
+  }
+}

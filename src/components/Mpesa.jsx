@@ -1,13 +1,12 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation,} from 'react-router-dom';
 
 const Mpesa = () => {
     const [phone, setPhone] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(""); // Added error state for validation feedback
     const location = useLocation();
-    const navigate = useNavigate();
     
     const ROOM_URL = "https://victordesigner.alwaysdata.net/static/rooms/";
     const DINING_URL = "https://victordesigner.alwaysdata.net/static/images/";
