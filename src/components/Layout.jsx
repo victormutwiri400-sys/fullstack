@@ -10,6 +10,15 @@ import axios from "axios";
 const Layout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [darkMode, setDarkMode] = useState(false);
+
+useEffect(() => {
+  if (darkMode) {
+    document.body.classList.add("dark-mode");
+  } else {
+    document.body.classList.remove("dark-mode");
+  }
+}, [darkMode]);
   
   const [showPane, setShowPane] = useState(false);
   const [auth, setAuth] = useState(JSON.parse(localStorage.getItem("user")));
@@ -136,10 +145,10 @@ const Layout = ({ children }) => {
           {/* Desktop Nav */}
           <div className="collapse navbar-collapse d-none d-lg-block">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold">
-              <li className="nav-item"><button className="nav-link btn border-0 bg-transparent" onClick={() => navigate("/")}>Home</button></li>
-              <li className="nav-item"><button className="nav-link btn border-0 bg-transparent" onClick={() => navigate("/rooms")}>Rooms</button></li>
-              <li className="nav-item"><button className="nav-link btn border-0 bg-transparent" onClick={() => navigate("/dining")}>Dining</button></li>
-              <li className="nav-item"><button className="nav-link btn border-0 bg-transparent" onClick={() => navigate("/gallery")}>Gallery</button></li>
+              <li className="nav-item"><button className="nav-link text-dark btn border-0 bg-transparent" onClick={() => navigate("/")}>Home</button></li>
+              <li className="nav-item"><button className="nav-link text-dark btn border-0 bg-transparent" onClick={() => navigate("/rooms")}>Rooms</button></li>
+              <li className="nav-item"><button className="nav-link text-dark btn border-0 bg-transparent" onClick={() => navigate("/dining")}>Dining</button></li>
+              <li className="nav-item"><button className="nav-link text-dark btn border-0 bg-transparent" onClick={() => navigate("/gallery")}>Gallery</button></li>
               {/* Conditional Admin Link for Desktop */}
               {auth?.role === 'admin' && (
                 <li className="nav-item">
@@ -235,12 +244,17 @@ const Layout = ({ children }) => {
         </Offcanvas.Header>
         <Offcanvas.Body className="d-flex flex-column">
           <Nav className="flex-column gap-3 fs-5">
-            <Nav.Link onClick={() => navigate("/")} className="text-dark border-bottom pb-2">Home</Nav.Link>
-            <Nav.Link onClick={() => navigate("/rooms")} className="text-dark border-bottom pb-2">Rooms & Suites</Nav.Link>
-            <Nav.Link onClick={() => navigate("/dining")} className="text-dark border-bottom pb-2">Dining</Nav.Link>
-            <Nav.Link onClick={() => navigate("/gallery")} className="text-dark border-bottom pb-2">Gallery</Nav.Link>
-            <Nav.Link onClick={() => navigate("/signup")} className="text-dark border-bottom pb-2">Sign Up</Nav.Link>
-            <Nav.Link onClick={() => navigate("/history")} className="text-dark border-bottom pb-2">My History</Nav.Link>
+            <Nav.Link onClick={() => navigate("/")} className="text-primary border-bottom pb-2">Home</Nav.Link>
+            <Nav.Link onClick={() => navigate("/rooms")} className="text-primary border-bottom pb-2">Rooms & Suites</Nav.Link>
+            <Nav.Link onClick={() => navigate("/dining")} className="text-primary border-bottom pb-2">Dining</Nav.Link>
+            <Nav.Link onClick={() => navigate("/gallery")} className="text-primary border-bottom pb-2">Gallery</Nav.Link>
+            <Nav.Link onClick={() => navigate("/signup")} className="text-primary border-bottom pb-2">Sign Up</Nav.Link>
+            <Nav.Link onClick={() => navigate("/history")} className="text-primary border-bottom pb-2">My History</Nav.Link>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="btn btn-outline-primary">
+              {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+            </button>
             {/* Conditional Admin Link for Mobile */}
             {auth?.role === 'admin' && (
                 <Nav.Link onClick={() => navigate("/admin")} className="text-danger fw-bold mt-2 d-flex align-items-center">

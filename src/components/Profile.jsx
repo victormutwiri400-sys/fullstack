@@ -40,11 +40,11 @@ function Profile() {
                   <img 
                     src={`https://victordesigner.alwaysdata.net/static/profiles/${person.photo}`} 
                     alt="Full Profile" 
-                    className="rounded-circle border border-4 border-white shadow"
+                    className="rounded-circle  border-4 border-white shadow"
                     style={{ width: "120px", height: "120px", objectFit: "cover" }}
                   />
                 ) : (
-                  <FaUserCircle size={120} className="text-light bg-secondary rounded-circle border border-4 border-white shadow" />
+                  <FaUserCircle size={120} className="text-light bg-secondary rounded-circle  border-4 border-white shadow" />
                 )}
               </div>
 

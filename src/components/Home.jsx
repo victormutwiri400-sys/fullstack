@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState} from "react";
 import { Carousel } from 'react-bootstrap'; 
 import { FaShieldAlt, FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa"; 
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
+ 
+
+
   
   const [auth] = useState(JSON.parse(localStorage.getItem("user")));
   const currentUser = auth?.role === 'admin' ? auth.admin : auth?.user;
