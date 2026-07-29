@@ -79,6 +79,8 @@ function Rooms() {
 
   const img_url = "https://victordesigner.alwaysdata.net/static/rooms/"
   const navigate = useNavigate()
+  const auth = JSON.parse(localStorage.getItem("user") || "null")
+  const isAdmin = auth?.role === "admin"
 
   const getRooms = async () => {
     setLoading(true)
@@ -207,6 +209,21 @@ function Rooms() {
                       >
                         {isOccupied ? "Occupied" : "Book Now"}
                       </button>
+
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          className="btn btn-warning w-100 fw-bold mt-2"
+                          onClick={() => navigate("/admin", {
+                            state: {
+                              updateType: "room",
+                              roomId: room.room_id
+                            }
+                          })}
+                        >
+                          Update
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

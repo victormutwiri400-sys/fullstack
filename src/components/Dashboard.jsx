@@ -1,9 +1,10 @@
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [authorized, setAuthorized] = useState(false);
   const [allOrders, setAllOrders] = useState([]); 
   const [allBookings, setAllBookings] = useState([]); 
@@ -62,6 +63,26 @@ const [updateDiningMsg, setUpdateDiningMsg] = useState("")
       navigate("/");
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (!authorized) return;
+
+    if (location.state?.updateType === "room" && location.state?.roomId) {
+      setUpdateRoomId(location.state.roomId);
+      setUpdateRoomMsg(`Room ID ${location.state.roomId} selected for update.`);
+      setTimeout(() => {
+        document.getElementById("update-room-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+
+    if (location.state?.updateType === "dining" && location.state?.diningId) {
+      setUpdateDiningId(location.state.diningId);
+      setUpdateDiningMsg(`Dining ID ${location.state.diningId} selected for update.`);
+      setTimeout(() => {
+        document.getElementById("update-dining-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  }, [authorized, location.state]);
 
   // --- FETCH FUNCTIONS ---
   const fetchAllOrders = async () => {
@@ -429,12 +450,11 @@ const submitUpdateDining = async (e) => {
       {/* UPDATE ROOM */}
 
       <div className="col-md-4">
-        <div className="card shadow-sm border-0 p-4 h-100">
+        <div id="update-room-form" className="card shadow-sm border-0 p-4 h-100">
           <h5 className="fw-bold text-warning border-bottom pb-2 mb-3">
          Update Room
         </h5>
                 
-        ```
       <form onSubmit={submitUpdateRoom}>
 
       {updateRoomMsg && (
@@ -486,19 +506,17 @@ const submitUpdateDining = async (e) => {
 
       </form>
       </div>
-      ```
 
       </div>
 
       {/* UPDATE DINING */}
 
       <div className="col-md-4">
-        <div className="card shadow-sm border-0 p-4 h-100">
+        <div id="update-dining-form" className="card shadow-sm border-0 p-4 h-100">
           <h5 className="fw-bold text-info border-bottom pb-2 mb-3">
           Update Dining
           </h5>
 
-      ```
       <form onSubmit={submitUpdateDining}>
 
       {updateDiningMsg && (
@@ -562,7 +580,6 @@ const submitUpdateDining = async (e) => {
 
       </form>
       </div>
-      ```
 
       </div>
 

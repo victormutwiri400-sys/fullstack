@@ -19,7 +19,7 @@ function DiningImage({ src, alt }) {
           observer.disconnect();
         }
       },
-      { rootMargin: "100px" }
+      { rootMargin: "400px" }
     );
 
     observer.observe(imageRef);
@@ -87,6 +87,8 @@ function GetDining() {
 
   const bookedRoom = location.state?.room || location.state?.product || null;
   const img_url = "https://victordesigner.alwaysdata.net/static/images/";
+  const auth = JSON.parse(localStorage.getItem("user") || "null");
+  const isAdmin = auth?.role === "admin";
 
   const getMeals = async () => {
     setLoading(true);
@@ -109,8 +111,6 @@ function GetDining() {
   const handleOrder = (e, product) => {
     if (e) e.preventDefault();
 
-    const auth = JSON.parse(localStorage.getItem("user") || "null");
-    
     if (!auth) {
       navigate("/signin");
       return;
@@ -247,6 +247,21 @@ function GetDining() {
                     >
                       {bookedRoom ? "Order to Room" : "Add & Pay"}
                     </button>
+
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        className="btn btn-warning w-100 fw-bold mt-2"
+                        onClick={() => navigate("/admin", {
+                          state: {
+                            updateType: "dining",
+                            diningId: p.dining_id
+                          }
+                        })}
+                      >
+                        Update
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
