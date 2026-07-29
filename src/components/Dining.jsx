@@ -3,6 +3,71 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Pagination from "./Pagination";
 
+function DiningImage({ src, alt }) {
+  const [imageRef, setImageRef] = useState(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (!imageRef) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "100px" }
+    );
+
+    observer.observe(imageRef);
+
+    return () => observer.disconnect();
+  }, [imageRef]);
+
+  return (
+    <div
+      ref={setImageRef}
+      className="position-relative bg-light"
+      style={{ height: "150px", overflow: "hidden" }}
+    >
+      {(!imageLoaded || imageError) && (
+        <div className="position-absolute top-50 start-50 translate-middle text-center">
+          {!imageError ? (
+            <>
+              <div className="spinner-border spinner-border-sm text-primary mb-2" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <div className="text-muted small">Loading image...</div>
+            </>
+          ) : (
+            <div className="text-muted small">Image unavailable</div>
+          )}
+        </div>
+      )}
+
+      {shouldLoad && !imageError && (
+        <img
+          src={src}
+          className="card-img-top"
+          style={{
+            height: "150px",
+            objectFit: "cover",
+            opacity: imageLoaded ? 1 : 0,
+            transition: "opacity 0.3s ease"
+          }}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageError(true)}
+        />
+      )}
+    </div>
+  );
+}
+
 function GetDining() {
   const [products, setProducts] = useState([]);
   const [quantities, setQuantities] = useState({});
@@ -152,15 +217,9 @@ function GetDining() {
           {displayedProducts.map((p) => (
             <div key={p.dining_id} className="col-md-3 mb-4">
               <div className="card h-100 shadow-sm border-0">
-                <img 
-                  src={p.photo ? `${img_url}${p.photo.toLowerCase()}?v=${cacheVersion}` : "https://placehold.co/600x400?text=No+Image"} 
-                  className="card-img-top" 
-                  style={{height:"150px", objectFit:"cover"}} 
+                <DiningImage
+                  src={p.photo ? `${img_url}${p.photo.toLowerCase()}?v=${cacheVersion}` : "https://placehold.co/600x400?text=No+Image"}
                   alt={p.name}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "https://placehold.co/600x400?text=Image+Not+Found";
-                  }}
                 />
                 <div className="card-body d-flex flex-column">
                   <div className="d-flex justify-content-between align-items-start mb-2">

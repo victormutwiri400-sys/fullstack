@@ -1,6 +1,71 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
+function GalleryImage({ src, alt }) {
+  const [imageRef, setImageRef] = useState(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (!imageRef) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "100px" }
+    );
+
+    observer.observe(imageRef);
+
+    return () => observer.disconnect();
+  }, [imageRef]);
+
+  return (
+    <div
+      ref={setImageRef}
+      className="position-relative bg-light"
+      style={{ height: "250px", overflow: "hidden" }}
+    >
+      {(!imageLoaded || imageError) && (
+        <div className="position-absolute top-50 start-50 translate-middle text-center">
+          {!imageError ? (
+            <>
+              <div className="spinner-border spinner-border-sm text-primary mb-2" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <div className="text-muted small">Loading image...</div>
+            </>
+          ) : (
+            <div className="text-muted small">Image unavailable</div>
+          )}
+        </div>
+      )}
+
+      {shouldLoad && !imageError && (
+        <img
+          src={src}
+          alt={alt}
+          className="card-img-top"
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageError(true)}
+          style={{
+            height: "250px",
+            objectFit: "cover",
+            opacity: imageLoaded ? 1 : 0,
+            transition: "opacity 0.3s ease"
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 function GetGallery() {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState("");
@@ -34,11 +99,9 @@ function GetGallery() {
         {photos.map((photo) => (
           <div key={photo.id} className="col-md-4 mb-4">
             <div className="card shadow">
-              <img
+              <GalleryImage
                 src={img_url + photo.photo}
                 alt={photo.description}
-                className="card-img-top"
-                style={{ height: "250px", objectFit: "cover" }}
               />
               <div className="card-body text-center">
                 <h5>{photo.name}</h5>

@@ -3,6 +3,69 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Pagination from './Pagination'
 
+function RoomImage({ src, alt }) {
+  const [imageRef, setImageRef] = useState(null)
+  const [shouldLoad, setShouldLoad] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
+
+  useEffect(() => {
+    if (!imageRef) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '100px' }
+    )
+
+    observer.observe(imageRef)
+
+    return () => observer.disconnect()
+  }, [imageRef])
+
+  return (
+    <div
+      ref={setImageRef}
+      className="position-relative bg-light"
+      style={{ height: '200px', overflow: 'hidden' }}
+    >
+      {(!imageLoaded || imageError) && (
+        <div className="position-absolute top-50 start-50 translate-middle text-center">
+          {!imageError ? (
+            <>
+              <div className="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+              <div className="text-muted small">Loading image...</div>
+            </>
+          ) : (
+            <div className="text-muted small">Image unavailable</div>
+          )}
+        </div>
+      )}
+
+      {shouldLoad && !imageError && (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageError(true)}
+          className='card-img-top'
+          style={{
+            height: '200px',
+            objectFit: 'cover',
+            opacity: imageLoaded ? 1 : 0,
+            transition: 'opacity 0.3s ease'
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
 function Rooms() {
   const [rooms, setRooms] = useState([])
   const [loading, setLoading] = useState(false)
@@ -125,11 +188,9 @@ function Rooms() {
             return (
               <div key={room.room_id} className='col-md-3 mb-4'>
                 <div className='card shadow-sm h-100 border-0'>
-                  <img 
-                    src={img_url + room.photo} 
-                    alt={room.description} 
-                    className='card-img-top' 
-                    style={{ height: '200px', objectFit: 'cover' }} 
+                  <RoomImage
+                    src={img_url + room.photo}
+                    alt={room.description}
                   />
 
                   <div className='card-body d-flex flex-column'>

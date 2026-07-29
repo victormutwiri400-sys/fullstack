@@ -1,7 +1,72 @@
-import React, { useState} from "react";
+import React, { useEffect, useState} from "react";
 import { Carousel } from 'react-bootstrap'; 
 import { FaShieldAlt, FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa"; 
 import { useNavigate } from "react-router-dom";
+
+function HomeImage({ src, alt, height }) {
+  const [imageRef, setImageRef] = useState(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (!imageRef) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "150px" }
+    );
+
+    observer.observe(imageRef);
+
+    return () => observer.disconnect();
+  }, [imageRef]);
+
+  return (
+    <div
+      ref={setImageRef}
+      className="position-relative bg-light"
+      style={{ height, overflow: "hidden" }}
+    >
+      {(!imageLoaded || imageError) && (
+        <div className="position-absolute top-50 start-50 translate-middle text-center">
+          {!imageError ? (
+            <>
+              <div className="spinner-border spinner-border-sm text-primary mb-2" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <div className="text-muted small">Loading image...</div>
+            </>
+          ) : (
+            <div className="text-muted small">Image unavailable</div>
+          )}
+        </div>
+      )}
+
+      {shouldLoad && !imageError && (
+        <img
+          className="d-block w-100"
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageError(true)}
+          style={{
+            height,
+            objectFit: 'cover',
+            opacity: imageLoaded ? 1 : 0,
+            transition: "opacity 0.3s ease"
+          }}
+        />
+      )}
+    </div>
+  );
+}
 
 const Home = () => {
   const navigate = useNavigate();
@@ -39,16 +104,16 @@ const Home = () => {
       <div className="container pb-5">
           <Carousel className="shadow rounded-4 overflow-hidden mx-auto" style={{maxWidth: '1100px'}}>
             <Carousel.Item interval={3000}>
-              <img className="d-block w-100" src="https://victordesigner.alwaysdata.net/static/gallery/overview.jpg" alt="Hotel" style={{ height: '500px', objectFit: 'cover' }} />
+              <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/overview.jpg" alt="Hotel" height="500px" />
             </Carousel.Item>
             <Carousel.Item interval={3000}>
-              <img className="d-block w-100" src="https://victordesigner.alwaysdata.net/static/gallery/fountain.jpg" alt="Fountain" style={{ height: '500px', objectFit: 'cover' }} />
+              <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/fountain.jpg" alt="Fountain" height="500px" />
             </Carousel.Item>
             <Carousel.Item interval={3000}>
-              <img className="d-block w-100" src="https://victordesigner.alwaysdata.net/static/gallery/path.jpg" alt="Path" style={{ height: '500px', objectFit: 'cover' }} />
+              <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/path.jpg" alt="Path" height="500px" />
             </Carousel.Item>
             <Carousel.Item interval={3000}>
-              <img className="d-block w-100" src="https://victordesigner.alwaysdata.net/static/gallery/pool.jpg" alt="Pool" style={{ height: '500px', objectFit: 'cover' }} />
+              <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/pool.jpg" alt="Pool" height="500px" />
             </Carousel.Item>
           </Carousel>
       </div>
@@ -61,10 +126,10 @@ const Home = () => {
           <div className="col-md-6 p-0">
             <Carousel fade indicators={false} className="overflow-hidden">
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/rooms/master1.jpg" className="d-block w-100" alt="Master Suite" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/rooms/master1.jpg" alt="Master Suite" height="450px" />
               </Carousel.Item>
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/rooms/master2.jpg" className="d-block w-100" alt="Deluxe Room" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/rooms/master2.jpg" alt="Deluxe Room" height="450px" />
               </Carousel.Item>
             </Carousel>
           </div>
@@ -81,10 +146,10 @@ const Home = () => {
           <div className="col-md-6 p-0">
             <Carousel fade indicators={false} className="overflow-hidden">
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/images/dinner2.avif" className="d-block w-100" alt="Fine Dining" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/images/dinner2.avif" alt="Fine Dining" height="450px" />
               </Carousel.Item>
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/images/break1.jpg" className="d-block w-100" alt="Gourmet Breakfast" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/images/break1.jpg" alt="Gourmet Breakfast" height="450px" />
               </Carousel.Item>
             </Carousel>
           </div>
@@ -101,13 +166,13 @@ const Home = () => {
           <div className="col-md-6 p-0">
             <Carousel fade indicators={false} className="overflow-hidden">
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/gallery/pool.jpg" className="d-block w-100" alt="Infinity Pool" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/pool.jpg" alt="Infinity Pool" height="450px" />
               </Carousel.Item>
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/gallery/parking.jpg" className="d-block w-100" alt="Parking" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/parking.jpg" alt="Parking" height="450px" />
               </Carousel.Item>
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/gallery/playground.jpg" className="d-block w-100" alt="Playground" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/playground.jpg" alt="Playground" height="450px" />
               </Carousel.Item>
             </Carousel>
           </div>
@@ -124,13 +189,13 @@ const Home = () => {
           <div className="col-md-6 p-0">
             <Carousel fade indicators={false} className="overflow-hidden">
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/gallery/control room.jpg" className="d-block w-100" alt="Control Room" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/control room.jpg" alt="Control Room" height="450px" />
               </Carousel.Item>
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/gallery/surgent.jpg" className="d-block w-100" alt="Security" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/surgent.jpg" alt="Security" height="450px" />
               </Carousel.Item>
               <Carousel.Item>
-                <img src="https://victordesigner.alwaysdata.net/static/gallery/dog.jpg" className="d-block w-100" alt="Security" style={{ height: '450px', objectFit: 'cover' }} />
+                <HomeImage src="https://victordesigner.alwaysdata.net/static/gallery/dog.jpg" alt="Security" height="450px" />
               </Carousel.Item>
             </Carousel>
           </div>
